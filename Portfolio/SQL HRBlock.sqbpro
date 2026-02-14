@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?><sqlb_project><db path="SQL HRBlock.db" readonly="0" foreign_keys="1" case_sensitive_like="0" temp_store="0" wal_autocheckpoint="1000" synchronous="2"/><attached/><window><main_tabs open="structure browser pragmas query" current="3"/></window><tab_structure><column_width id="0" width="300"/><column_width id="1" width="0"/><column_width id="2" width="100"/><column_width id="3" width="60"/><column_width id="4" width="0"/><expanded_item id="0" parent="1"/><expanded_item id="1" parent="1"/><expanded_item id="2" parent="1"/><expanded_item id="3" parent="1"/></tab_structure><tab_browse><table title=".Browsables" custom_title="0" dock_id="1" table="0,10:Browsables"/><dock_state state="000000ff00000000fd00000001000000020000000000000000fc0100000001fb000000160064006f0063006b00420072006f00770073006500310100000000ffffffff0000014d00ffffff000000000000000000000004000000040000000800000008fc00000000"/><default_encoding codec=""/><browse_table_settings/></tab_browse><tab_sql><sql name="SQL 1*">-- 1. Create Suppliers Table
+CREATE TABLE Suppliers (
+    SupplierID INTEGER PRIMARY KEY,
+    SupplierName TEXT NOT NULL,
+    Category TEXT,
+    RiskLevel TEXT, -- Low, Medium, High
+    DiversityStatus TEXT, -- Certified, Not Certified
+    PaymentTerms TEXT
+);
+
+-- 2. Create Contracts Table
+CREATE TABLE Contracts (
+    ContractID INTEGER PRIMARY KEY,
+    SupplierID INTEGER,
+    Category TEXT,
+    StartDate DATE,
+    EndDate DATE,
+    ContractValue REAL,
+    SavingsTarget REAL,
+    IsActive TEXT, -- Yes, No
+    FOREIGN KEY (SupplierID) REFERENCES Suppliers(SupplierID)
+);
+
+-- 3. Create PurchaseOrders Table
+CREATE TABLE PurchaseOrders (
+    PO_ID INTEGER PRIMARY KEY,
+    SupplierID INTEGER,
+    OrderDate DATE,
+    DeliveryDate DATE,
+    ActualDeliveryDate DATE,
+    Category TEXT,
+    Amount REAL,
+    Status TEXT, -- Delivered, Pending, Delayed
+    FOREIGN KEY (SupplierID) REFERENCES Suppliers(SupplierID)
+);
+
+-- 4. Create Spend Table (Detailed transactional data)
+CREATE TABLE Spend (
+    TransactionID INTEGER PRIMARY KEY,
+    Date DATE,
+    SupplierID INTEGER,
+    Category TEXT,
+    Description TEXT,
+    Amount REAL,
+    CostCenter TEXT, -- e.g., &quot;Field Office&quot;, &quot;Marketing&quot;, &quot;IT&quot;
+    FOREIGN KEY (SupplierID) REFERENCES Suppliers(SupplierID)
+);
+
+-- Insert Sample Data into Suppliers
+INSERT INTO Suppliers (SupplierID, SupplierName, Category, RiskLevel, DiversityStatus, PaymentTerms) VALUES
+(1, 'OfficeMax', 'Office Supplies', 'Low', 'Not Certified', 'Net 30'),
+(2, 'TaxForm Printers Inc.', 'Printed Forms', 'Medium', 'Certified', 'Net 45'),
+(3, 'Creative Agency LLC', 'Marketing', 'Low', 'Not Certified', 'Net 15'),
+(4, 'Dell Technologies', 'IT Equipment', 'Low', 'Not Certified', 'Net 30'),
+(5, 'QuickShip Logistics', 'Logistics', 'High', 'Certified', 'Net 30'),
+(6, 'PaperCo', 'Office Supplies', 'Low', 'Not Certified', 'Net 30'),
+(7, 'DM Direct Marketing', 'Marketing', 'Medium', 'Certified', 'Net 45'),
+(8, 'Global Tech Solutions', 'IT Equipment', 'Medium', 'Not Certified', 'Net 60');
+
+-- Insert Sample Data into Contracts
+INSERT INTO Contracts (ContractID, SupplierID, Category, StartDate, EndDate, ContractValue, SavingsTarget, IsActive) VALUES
+(101, 1, 'Office Supplies', '2023-01-01', '2024-12-31', 500000, 5.0, 'Yes'),
+(102, 2, 'Printed Forms', '2023-06-01', '2024-05-31', 1200000, 8.0, 'Yes'),
+(103, 3, 'Marketing', '2024-01-01', '2024-12-31', 350000, 3.0, 'Yes'),
+(104, 4, 'IT Equipment', '2023-09-01', '2025-08-31', 2000000, 10.0, 'Yes'),
+(105, 5, 'Logistics', '2023-01-01', '2023-12-31', 250000, 2.0, 'No'),
+(106, 7, 'Marketing', '2024-02-01', '2025-01-31', 400000, 6.0, 'Yes');
+
+-- Insert Sample Data into PurchaseOrders
+INSERT INTO PurchaseOrders (PO_ID, SupplierID, OrderDate, DeliveryDate, ActualDeliveryDate, Category, Amount, Status) VALUES
+(1001, 1, '2024-01-15', '2024-01-22', '2024-01-23', 'Office Supplies', 5500.00, 'Delivered'),
+(1002, 2, '2024-01-20', '2024-02-10', '2024-02-15', 'Printed Forms', 25000.00, 'Delayed'),
+(1003, 3, '2024-02-01', '2024-02-15', '2024-02-14', 'Marketing', 8750.00, 'Delivered'),
+(1004, 4, '2024-02-10', '2024-02-25', NULL, 'IT Equipment', 32000.00, 'Pending'),
+(1005, 2, '2024-03-01', '2024-03-20', '2024-03-22', 'Printed Forms', 18750.00, 'Delivered'),
+(1006, 5, '2024-03-05', '2024-03-12', '2024-03-18', 'Logistics', 4200.00, 'Delayed'),
+(1007, 1, '2024-03-15', '2024-03-22', '2024-03-22', 'Office Supplies', 3100.00, 'Delivered'),
+(1008, 7, '2024-04-01', '2024-04-15', NULL, 'Marketing', 15000.00, 'Pending');
+
+-- Insert Sample Data into Spend
+INSERT INTO Spend (TransactionID, Date, SupplierID, Category, Description, Amount, CostCenter) VALUES
+(5001, '2024-01-05', 1, 'Office Supplies', 'Pens, Paper, Folders', 1200.50, 'Field Office'),
+(5002, '2024-01-12', 2, 'Printed Forms', '1040 Tax Forms', 8500.00, 'Field Office'),
+(5003, '2024-01-18', 3, 'Marketing', 'Social Media Ads', 3000.00, 'Marketing'),
+(5004, '2024-01-22', 4, 'IT Equipment', 'Laptops for New Hires', 15000.00, 'IT'),
+(5005, '2024-02-09', 2, 'Printed Forms', 'Instruction Booklets', 4200.00, 'Field Office'),
+(5006, '2024-02-14', 1, 'Office Supplies', 'Toners', 800.75, 'Field Office'),
+(5007, '2024-02-21', 5, 'Logistics', 'Shipping - Forms', 1250.00, 'Field Office'),
+(5008, '2024-02-28', 7, 'Marketing', 'Direct Mail Campaign', 7500.00, 'Marketing'),
+(5009, '2024-03-07', 4, 'IT Equipment', 'Monitors', 4200.00, 'IT'),
+(5010, '2024-03-11', 2, 'Printed Forms', 'State Tax Forms', 6800.00, 'Field Office'),
+(5011, '2024-03-18', 6, 'Office Supplies', 'Desk Organizers', 450.00, 'Field Office'),
+(5012, '2024-03-25', 3, 'Marketing', 'Radio Ad', 2000.00, 'Marketing'),
+(5013, '2024-04-02', 7, 'Marketing', 'Email Campaign', 2500.00, 'Marketing'),
+(5014, '2024-04-08', 4, 'IT Equipment', 'Printers', 6800.00, 'IT'),
+(5015, '2024-04-15', 1, 'Office Supplies', 'Misc Supplies', 950.25, 'Field Office');
+
+-- Commit the data
+COMMIT;</sql><current_tab id="0"/></tab_sql></sqlb_project>
